@@ -35,30 +35,6 @@ class HotelsSearchArgs:
         self.has_spa = has_spa
 
 
-# @app.get('/hotels', response_model=list[SHotel])
-# def get_hotels(
-#         location: str,
-#         date_from: date,
-#         date_to: date,
-#         stars: Optional[int] = Query(default=None, ge=1, le=5),
-#         has_spa: Optional[bool] = None
-# ):
-#     data = {
-#         'location': location,
-#         'date_from': date_from,
-#         'date_to': date_to,
-#         'stars': stars,
-#         'has_spa': has_spa
-#     }
-#     print(data)
-#     hotels = [
-#         {
-#             'address': 'ул. Гагарина, д.1, Алтай', 'name': 'Super Hotel',
-#             'stars': 5
-#         },
-#     ]
-#     return hotels
-
 @app.get('/hotels', response_model=list[SHotel])
 def get_hotels(
         search_args: HotelsSearchArgs = Depends()
@@ -71,29 +47,3 @@ def get_hotels(
         },
     ]
     return hotels
-
-
-class SBooking(BaseModel):
-    room_id: int
-    date_from: date
-    date_to: date
-
-
-@app.post('/bookings')
-def add_booking(booking: SBooking):
-    pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
