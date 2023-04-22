@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 from pydantic import EmailStr
 
 from app.config import settings
-from app.users.dao import UsersDAO
+from app.users.dao import UserDAO
 from app.users.models import Users
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -35,6 +35,6 @@ def create_access_token(data: dict) -> str:
 
 async def authenticate_user(email: EmailStr, password: str) -> Optional[Users]:
     """Аутентификация пользователя"""
-    user = await UsersDAO.find_one_or_none(email=email)
+    user = await UserDAO.find_one_or_none(email=email)
     if user or verify_password(password, user.hashed_password):
         return user

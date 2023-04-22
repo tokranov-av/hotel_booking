@@ -6,7 +6,7 @@ from app.exceptions import (
 from app.users.auth import (
     get_password_hash, authenticate_user, create_access_token
 )
-from app.users.dao import UsersDAO
+from app.users.dao import UserDAO
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 from app.users.schemas import SUserAuth
@@ -20,11 +20,11 @@ router = APIRouter(
 
 @router.post('/register')
 async def register_user(user_data: SUserAuth):
-    existing_user = await UsersDAO.find_one_or_none(email=user_data.email)
+    existing_user = await UserDAO.find_one_or_none(email=user_data.email)
     if existing_user:
         raise UserAlreadyExistsException
     hashed_password = get_password_hash(user_data.password)
-    await UsersDAO.create(
+    await UserDAO.add(
         email=user_data.email, hashed_password=hashed_password
     )
 
