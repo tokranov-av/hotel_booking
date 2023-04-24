@@ -12,6 +12,21 @@ class BookingDAO(BaseDAO):
     model = Bookings
 
     @classmethod
+    async def find_all_with_images(cls, user_id: int):
+        async with async_session_maker() as session:
+            query = (
+                select(
+                    # __table__.columns нужен для легкого парсинга ответа Алхимии Пайдентиком
+                    Bookings.__table__.columns,
+                    Rooms.__table__.columns,
+                )
+                .join(Rooms, Rooms.id == Bookings.room_id, isouter=True)
+                .where(Bookings.user_id == user_id)
+            )
+            result = await session.execute(query)
+            return result.all()
+
+    @classmethod
     async def add(
             cls, user_id: int, room_id: int, date_from: date, date_to: date
     ):
