@@ -43,3 +43,8 @@ CannotBookHotelForLongPeriod = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
     detail="Невозможно забронировать отель сроком более месяца",
 )
+
+CannotAddDataToDatabase = HTTPException(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    detail="Не удалось добавить запись",
+)
