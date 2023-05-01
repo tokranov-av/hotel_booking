@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     SECRET_KEY: str
     ALGORITHM: str
+    REDIS_HOST: str
+    REDIS_PORT: int
 
     @property
     def database_url(self):
