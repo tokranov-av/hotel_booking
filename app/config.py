@@ -7,10 +7,17 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+
     SECRET_KEY: str
     ALGORITHM: str
+
     REDIS_HOST: str
     REDIS_PORT: int
+
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASS: str
 
     @property
     def database_url(self):

@@ -4,6 +4,7 @@ from pydantic import parse_obj_as
 from app.bookings.dao import BookingDAO
 from app.bookings.schemas import SBooking, SBookingInfo, SNewBooking
 from app.exceptions import RoomCannotBeBookedException
+from app.tasks.tasks import send_booking_confirmation_email
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 
@@ -36,7 +37,7 @@ async def add_booking(
         raise RoomCannotBeBookedException
     booking_dict = parse_obj_as(SBooking, booking).dict()
     # Celery
-    # send_booking_confirmation_email.delay(booking_dict, user.email)
+    send_booking_confirmation_email.delay(booking_dict, user.email)
     # Background Tasks
     # background_tasks.add_task(
     # send_booking_confirmation_email, booking_dict, user.email)
