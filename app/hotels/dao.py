@@ -4,7 +4,7 @@ from sqlalchemy import and_, func, or_, select
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
-from app.database import async_session_maker    # engine
+from app.database import async_session_maker
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 
@@ -35,8 +35,8 @@ class HotelDAO(BaseDAO):
         """
         booked_rooms = (
             select(
-                Bookings.room_id,
-                func.count(Bookings.room_id).label('rooms_booked')
+                Bookings.room_id, func.count(Bookings.room_id)
+                .label("rooms_booked")
             )
             .select_from(Bookings)
             .where(
@@ -52,7 +52,7 @@ class HotelDAO(BaseDAO):
                 ),
             )
             .group_by(Bookings.room_id)
-            .cte('booked_rooms')
+            .cte("booked_rooms")
         )
 
         booked_hotels = (
@@ -61,8 +61,7 @@ class HotelDAO(BaseDAO):
                 func.sum(
                     Rooms.quantity - func.coalesce(
                         booked_rooms.c.rooms_booked, 0)
-                )
-                .label("rooms_left")
+                ).label("rooms_left")
             )
             .select_from(Rooms)
             .join(
@@ -74,12 +73,16 @@ class HotelDAO(BaseDAO):
 
         get_hotels_with_rooms = (
             # Код ниже можно было бы расписать так:
-            # select(Hotels, booked_hotels.c.rooms_left)
-            # Но используется конструкция Hotels.__table__.columns. Почему? Таким образом алхимия отдает
-            # все столбцы по одному, как отдельный атрибут. Если передать всю модель Hotels и
-            # один дополнительный столбец rooms_left, то будет проблематично для Pydantic распарсить
-            # такую структуру данных. То есть проблема кроется именно в парсинге ответа алхимии
-            # Пайдентиком.
+            # select(
+            #     Hotels
+            #     booked_hotels.c.rooms_left,
+            # )
+            # Но используется конструкция Hotels.__table__.columns. Почему?
+            # Таким образом алхимия отдает все столбцы по одному, как
+            # отдельный атрибут. Если передать всю модель Hotels и один
+            # дополнительный столбец rooms_left, то будет проблематично для
+            # Pydantic распарсить такую структуру данных. То есть проблема
+            # кроется именно в парсинге ответа алхимии Пайдентиком.
             select(
                 Hotels.__table__.columns,
                 booked_hotels.c.rooms_left,
@@ -96,6 +99,7 @@ class HotelDAO(BaseDAO):
             )
         )
         async with async_session_maker() as session:
-            # logger.debug(get_hotels_with_rooms.compile(engine, compile_kwargs={"literal_binds": True}))
+            # logger.debug(get_hotels_with_rooms.compile(
+            # engine, compile_kwargs={"literal_binds": True}))
             hotels_with_rooms = await session.execute(get_hotels_with_rooms)
-            return hotels_with_rooms.all()
+            return hotels_with_rooms.mappings().all()

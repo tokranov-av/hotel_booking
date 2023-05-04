@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, Depends, status  # BackgroundTasks
 from pydantic import parse_obj_as
 
 from app.bookings.dao import BookingDAO
