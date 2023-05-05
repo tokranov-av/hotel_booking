@@ -30,11 +30,7 @@ class BookingDAO(BaseDAO):
 
     @classmethod
     async def add(
-        cls,
-        user_id: int,
-        room_id: int,
-        date_from: date,
-        date_to: date,
+            cls, user_id: int, room_id: int, date_from: date, date_to: date,
     ):
         """
         WITH booked_rooms AS (
@@ -66,13 +62,13 @@ class BookingDAO(BaseDAO):
                         ),
                     )
                 )
-                .cte("booked_rooms")
+                .cte('booked_rooms')
             )
 
             get_rooms_left = (
                 select(
                     (Rooms.quantity - func.count(booked_rooms.c.room_id))
-                    .label("rooms_left")
+                    .label('rooms_left')
                 )
                 .select_from(Rooms)
                 .join(

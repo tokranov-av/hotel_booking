@@ -7,7 +7,8 @@ from app.database import async_session_maker
 class BaseDAO:
     model = None
 
-    # Метод было решено скрестить с find_one_or_none, т.к. они выполняют одну и ту же функцию
+    # Метод было решено скрестить с find_one_or_none, т.к. они выполняют
+    # одну и ту же функцию
     # @classmethod
     # async def find_by_id(cls, model_id: int):
     #     async with async_session_maker() as session:
@@ -40,9 +41,10 @@ class BaseDAO:
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):
                 msg = "Database Exc: Cannot insert data into table"
+                print(msg)
             elif isinstance(e, Exception):
                 msg = "Unknown Exc: Cannot insert data into table"
-
+                print(msg)
             return None
 
     @classmethod
@@ -64,9 +66,9 @@ class BaseDAO:
                 return result.mappings().first()
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):
-                msg = "Database Exc"
+                msg = "Database Exc: Cannot insert data into table"
+                print(msg)
             elif isinstance(e, Exception):
-                msg = "Unknown Exc"
-            msg += ": Cannot bulk insert data into table"
-
+                msg = "Unknown Exc: Cannot insert data into table"
+                print(msg)
             return None

@@ -1,16 +1,15 @@
-from fastapi import APIRouter, Depends, status  # BackgroundTasks
-from pydantic import parse_obj_as
+from fastapi import APIRouter, Depends  # BackgroundTasks
 
 from app.bookings.dao import BookingDAO
-from app.bookings.schemas import SBooking, SBookingInfo, SNewBooking
-from app.exceptions import RoomCannotBeBookedException
+from app.bookings.schemas import SBookingInfo, SNewBooking
+from app.exceptions import RoomCannotBeBooked
 from app.tasks.tasks import send_booking_confirmation_email
 from app.users.dependencies import get_current_user
 from app.users.models import Users
 
 router = APIRouter(
-    prefix="/bookings",
-    tags=["Бронирования"],
+    prefix='/bookings',
+    tags=['Бронирования'],
 )
 
 
@@ -21,30 +20,27 @@ async def get_bookings(
     return await BookingDAO.find_all_with_images(user_id=user.id)
 
 
-@router.post('', status_code=status.HTTP_201_CREATED)
+@router.post('', status_code=201)
 async def add_booking(
     booking: SNewBooking,
     # background_tasks: BackgroundTasks,
     user: Users = Depends(get_current_user),
 ):
     booking = await BookingDAO.add(
-        user.id,
-        booking.room_id,
-        booking.date_from,
-        booking.date_to,
+        user_id=user.id, room_id=booking.room_id,
+        date_from=booking.date_from, date_to=booking.date_to,
     )
     if not booking:
-        raise RoomCannotBeBookedException
-    booking_dict = parse_obj_as(SBooking, booking).dict()
+        raise RoomCannotBeBooked
     # Celery
-    send_booking_confirmation_email.delay(booking_dict, user.email)
+    send_booking_confirmation_email.delay(booking, user.email)
     # Background Tasks
     # background_tasks.add_task(
-    # send_booking_confirmation_email, booking_dict, user.email)
-    return booking_dict
+    # send_booking_confirmation_email, booking, user.email)
+    return booking
 
 
-@router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{booking_id}')
 async def remove_booking(
     booking_id: int,
     current_user: Users = Depends(get_current_user),

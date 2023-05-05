@@ -1,6 +1,5 @@
 from typing import Optional
 
-from sqladmin import Admin
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
@@ -24,7 +23,8 @@ class AdminAuth(AuthenticationBackend):
         request.session.clear()
         return True
 
-    async def authenticate(self, request: Request) -> Optional[RedirectResponse]:
+    async def authenticate(
+            self, request: Request) -> Optional[RedirectResponse]:
         token = request.session.get('token')
 
         if not token:
