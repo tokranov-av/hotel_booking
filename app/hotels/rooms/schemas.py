@@ -8,10 +8,10 @@ class SRoom(BaseModel):
     hotel_id: int
     name: str
     description: Optional[str]
-    services: List[str]
     price: int
+    services: Optional[List[str]]
     quantity: int
-    image_id: int
+    image_id: Optional[int]
 
     class Config:
         orm_mode = True

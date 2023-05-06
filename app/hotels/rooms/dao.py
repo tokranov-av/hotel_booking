@@ -44,14 +44,15 @@ class RoomDAO(BaseDAO):
                 ),
             )
             .group_by(Bookings.room_id)
-            .cte("booked_rooms")
+            .cte('booked_rooms')
         )
 
         get_rooms = (
             select(
                 Rooms.__table__.columns,
-                (Rooms.price * (date_to - date_from).days).label("total_cost"),
-                (Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0)).label("rooms_left"),
+                (Rooms.price * (date_to - date_from).days).label('total_cost'),
+                (Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0))
+                .label('rooms_left'),
             )
             .join(booked_rooms, booked_rooms.c.room_id == Rooms.id,
                   isouter=True)

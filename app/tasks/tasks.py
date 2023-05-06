@@ -15,6 +15,7 @@ images_dir_path = os.path.join(base_dir, 'static', 'images')
 
 @celery_app.task
 def process_pic(path: str):
+    """Сохранение изображения с разными размерами"""
     im_path = Path(path)
     im = Image.open(im_path)
     im_resized_1000_500 = im.resize((1000, 500))
@@ -29,6 +30,7 @@ def process_pic(path: str):
 
 @celery_app.task
 def send_booking_confirmation_email(booking: dict, email_to: EmailStr):
+    """Отправка на email клиента информации о бронировании комнаты"""
     email_to_mock = 'artur.tokranov888@yandex.ru'
     msg_content = create_booking_confirmation_template(booking, email_to_mock)
 

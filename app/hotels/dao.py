@@ -35,8 +35,8 @@ class HotelDAO(BaseDAO):
         """
         booked_rooms = (
             select(
-                Bookings.room_id, func.count(Bookings.room_id)
-                .label("rooms_booked")
+                Bookings.room_id,
+                func.count(Bookings.room_id).label('rooms_booked')
             )
             .select_from(Bookings)
             .where(

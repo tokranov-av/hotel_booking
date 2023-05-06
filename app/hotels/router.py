@@ -10,7 +10,6 @@ from app.exceptions import (
 from app.hotels.dao import HotelDAO
 from app.hotels.schemas import SHotel, SHotelInfo
 
-
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 
@@ -19,12 +18,11 @@ router = APIRouter(prefix='/hotels', tags=['Отели'])
 async def get_hotels_by_location_and_time(
     location: str,
     date_from: date = Query(
-        ...,
-        description=f'Например, {datetime.now().date()}'
+        ..., description=f'Например, {datetime.now().date()}'
     ),
     date_to: date = Query(
         ...,
-        description=f'Например, {(datetime.now() + timedelta(days=14)).date()}'
+        description=f'Например, {(datetime.now().date() + timedelta(days=14))}'
     ),
 ) -> List[SHotelInfo]:
     if date_from > date_to:
