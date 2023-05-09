@@ -9,7 +9,7 @@ services:
     image: postgres:14.5
     container_name: hotels_db
     env_file:
-      - .env
+      - .env.docker
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
@@ -19,7 +19,7 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin_hotels
     env_file:
-      - .env
+      - .env.docker
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
