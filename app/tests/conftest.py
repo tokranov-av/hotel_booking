@@ -5,10 +5,12 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+from httpx import AsyncClient
 from sqlalchemy import insert
 
 from app.config import settings
 from app.database import Base, async_session_maker, engine
+from app.main import app as fastapi_app
 
 from app.bookings.models import Bookings
 from app.hotels.models import Hotels
@@ -16,6 +18,8 @@ from app.hotels.rooms.models import Rooms
 from app.users.models import Users
 
 
+# autouse=True автоматическое использование фикстуры во всех тестах
+# scope='session' фикстура действует за время прогона всех тестов
 @pytest.fixture(scope='session', autouse=True)
 async def prepare_database():
     assert settings.MODE == 'TEST'
@@ -24,9 +28,9 @@ async def prepare_database():
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    def open_mock_json(model: str) -> dict:
+    def open_mock_json(model_name: str) -> dict:
         base_dir = Path(__file__).resolve().parent
-        file_path = os.path.join(base_dir, f'{model}')
+        file_path = os.path.join(base_dir, f'{model_name}')
         with open(file_path, 'r', encoding='utf-8') as file:
             return json.load(file)
 
@@ -38,10 +42,10 @@ async def prepare_database():
     for booking in bookings:
         # SQLAlchemy не принимает дату в текстовом формате, поэтому
         # форматируем к datetime
-        booking["date_from"] = datetime.strptime(
-            booking["date_from"], "%Y-%m-%d")
-        booking["date_to"] = datetime.strptime(
-            booking["date_to"], "%Y-%m-%d")
+        booking['date_from'] = datetime.strptime(
+            booking['date_from'], '%Y-%m-%d')
+        booking['date_to'] = datetime.strptime(
+            booking['date_to'], '%Y-%m-%d')
 
     async with async_session_maker() as session:
         add_hotels = insert(Hotels).values(hotels)
@@ -65,3 +69,17 @@ def event_loop(request):
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+@pytest.fixture(scope='function')
+async def ac():
+    """Создание клиента, который будет обращаться у эндпоинтам"""
+    async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
+        yield ac
+
+
+# @pytest.fixture(scope='function')
+# async def session():
+#     """Создание сессии"""
+#     async with async_session_maker() as session:
+#         yield session
