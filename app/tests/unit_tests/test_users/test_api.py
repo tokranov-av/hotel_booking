@@ -18,9 +18,11 @@ async def test_register_user(email, password, status_code, ac: AsyncClient):
     )
     assert response.status_code == status_code
 
+
 login_user_data = [
     ('test@test.com', 'test', 200),
     ('artur@example.com', 'artur', 200),
+    ('does_not_exist_user@example.com', 'not_exist', 401),
 ]
 
 
