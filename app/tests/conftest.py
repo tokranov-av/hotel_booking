@@ -16,6 +16,7 @@ from app.bookings.models import Bookings
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 from app.users.models import Users
+from app.users.router import router_auth
 
 
 # autouse=True автоматическое использование фикстуры во всех тестах
@@ -73,8 +74,20 @@ def event_loop(request):
 
 @pytest.fixture(scope='function')
 async def ac():
-    """Создание клиента, который будет обращаться у эндпоинтам"""
+    """Асинхронный не аутентифицированный клиент для тестирования эндпоинтов"""
     async with AsyncClient(app=fastapi_app, base_url='http://test') as ac:
+        yield ac
+
+
+@pytest.fixture(scope='session')
+async def authenticated_ac():
+    """Асинхронный аутентифицированный клиент для тестирования эндпоинтов"""
+    async with AsyncClient(app=fastapi_app, base_url="http://test") as ac:
+        await ac.post(
+            router_auth.url_path_for('login_user'),
+            json={'email': 'test@test.com', 'password': 'test'}
+        )
+        assert ac.cookies.get('booking_access_token')
         yield ac
 
 
