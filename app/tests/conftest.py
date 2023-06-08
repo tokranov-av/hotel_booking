@@ -93,6 +93,6 @@ async def authenticated_ac():
 
 # @pytest.fixture(scope='function')
 # async def session():
-#     """Создание сессии"""
+#     """Создание асинхронной сессии для тестов"""
 #     async with async_session_maker() as session:
 #         yield session

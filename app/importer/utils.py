@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from typing import Iterable
 
 from app.bookings.dao import BookingDAO
@@ -19,8 +20,9 @@ def convert_csv_to_postgres_format(csv_iterable: Iterable):
         for k, v in row.items():
             if v.isdigit():
                 row[k] = int(v)
+            elif k == 'services':
+                row[k] = json.loads(v.replace("'", '"'))
             elif 'date' in k:
                 row[k] = datetime.strptime(v, '%Y-%m-%d')
         data.append(row)
     return data
-

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends  # BackgroundTasks
+from pydantic import parse_obj_as
 
 from app.bookings.dao import BookingDAO
 from app.bookings.schemas import SBookingInfo, SNewBooking
@@ -27,11 +28,14 @@ async def add_booking(
     user: Users = Depends(get_current_user),
 ):
     booking = await BookingDAO.add(
-        user_id=user.id, room_id=booking.room_id,
-        date_from=booking.date_from, date_to=booking.date_to,
+        user_id=user.id,
+        room_id=booking.room_id,
+        date_from=booking.date_from,
+        date_to=booking.date_to,
     )
     if not booking:
         raise RoomCannotBeBooked
+    booking = parse_obj_as(SNewBooking, booking).dict()
     # Celery
     send_booking_confirmation_email.delay(booking, user.email)
     # Background Tasks
@@ -40,7 +44,7 @@ async def add_booking(
     return booking
 
 
-@router.delete('/{booking_id}')
+@router.delete("/{booking_id}")
 async def remove_booking(
     booking_id: int,
     current_user: Users = Depends(get_current_user),

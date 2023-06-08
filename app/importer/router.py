@@ -24,9 +24,13 @@ async def import_data_to_table(
     table_name: Literal["hotels", "rooms", "bookings"],
 ):
     ModelDAO = TABLE_MODEL_MAP[table_name]
-    # Внутри переменной file хранятся атрибуты file - сам файл,
+    # Внутри переменной file хранятся атрибуты:
+    # file - сам файл
     # filename - название файла, size - размер файла.
-    csvReader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'), delimiter=";")
+    csvReader = csv.DictReader(
+        codecs.iterdecode(file.file, 'utf-8'),
+        delimiter=';'
+    )
     data = convert_csv_to_postgres_format(csvReader)
     file.file.close()
     if not data:
