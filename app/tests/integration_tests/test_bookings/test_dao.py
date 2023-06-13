@@ -7,7 +7,12 @@ from app.bookings.dao import BookingDAO
 
 @pytest.mark.parametrize(
     'user_id, room_id',
-    [(2, 2), (2, 3), (1, 4), (1, 4)]
+    (
+        (2, 2),
+        (2, 3),
+        (1, 4),
+        (1, 4)
+    )
 )
 async def test_booking_crud(user_id, room_id):
     new_booking = await BookingDAO.add(
@@ -28,5 +33,6 @@ async def test_booking_crud(user_id, room_id):
 
     # Проверка удаления брони
     deleted_booking = await BookingDAO.find_one_or_none(
-        id=new_booking.get('id'))
+        id=new_booking.get('id')
+    )
     assert deleted_booking is None

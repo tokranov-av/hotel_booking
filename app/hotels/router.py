@@ -10,6 +10,7 @@ from app.exceptions import (
 from app.hotels.dao import HotelDAO
 from app.hotels.schemas import SHotel, SHotelInfo
 
+
 router = APIRouter(prefix='/hotels', tags=['Отели'])
 
 
@@ -33,7 +34,7 @@ async def get_hotels_by_location_and_time(
     return hotels
 
 
-@router.get("/id/{hotel_id}", include_in_schema=True)
+@router.get('/id/{hotel_id}', include_in_schema=True)
 # Этот эндпоинт используется для фронтенда, когда мы хотим отобразить все
 # номера в отеле и информацию о самом отеле. Этот эндпоинт как раз отвечает
 # за информацию об отеле.

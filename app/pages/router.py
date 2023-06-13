@@ -44,16 +44,16 @@ async def get_hotels_page(
     date_from = max(datetime.today().date(), date_from)
     # Автоматически ставим дату выезда не позже, чем через 180 дней
     date_to = min((datetime.today() + timedelta(days=180)).date(), date_to)
-    return templates.TemplateResponse(
-        'hotels_and_rooms/hotels.html',
-        {
+    context_data = {
             'request': request,
             'hotels': hotels,
             'location': location,
             'date_to': date_to.strftime('%Y-%m-%d'),
             'date_from': date_from.strftime('%Y-%m-%d'),
             'dates': dates,
-        },
+        }
+    return templates.TemplateResponse(
+        'hotels_and_rooms/hotels.html', context=context_data,
     )
 
 
@@ -68,18 +68,18 @@ async def get_rooms_page(
     date_from_formatted = date_from.strftime('%d.%m.%Y')
     date_to_formatted = date_to.strftime('%d.%m.%Y')
     booking_length = (date_to - date_from).days
+    context_data = {
+        'request': request,
+        'hotel': hotel,
+        'rooms': rooms,
+        'date_from': date_from,
+        'date_to': date_to,
+        'booking_length': booking_length,
+        'date_from_formatted': date_from_formatted,
+        'date_to_formatted': date_to_formatted,
+    }
     return templates.TemplateResponse(
-        'hotels_and_rooms/rooms.html',
-        {
-            'request': request,
-            'hotel': hotel,
-            'rooms': rooms,
-            'date_from': date_from,
-            'date_to': date_to,
-            'booking_length': booking_length,
-            'date_from_formatted': date_from_formatted,
-            'date_to_formatted': date_to_formatted,
-        },
+        'hotels_and_rooms/rooms.html', context=context_data,
     )
 
 
@@ -89,7 +89,7 @@ async def get_successful_booking_page(
     _=Depends(add_booking),
 ):
     return templates.TemplateResponse(
-        'bookings/booking_successful.html', {'request': request}
+        'bookings/booking_successful.html', context={'request': request}
     )
 
 
@@ -98,11 +98,11 @@ async def get_bookings_page(
     request: Request,
     bookings=Depends(get_bookings),
 ):
+    context_data = {
+        'request': request,
+        'bookings': bookings,
+        'format_number_thousand_separator': format_number_thousand_separator,
+    }
     return templates.TemplateResponse(
-        'bookings/bookings.html',
-        {
-            'request': request,
-            'bookings': bookings,
-            'format_number_thousand_separator': format_number_thousand_separator,
-        },
+        'bookings/bookings.html', context=context_data,
     )
