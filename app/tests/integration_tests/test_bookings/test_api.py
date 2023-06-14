@@ -26,8 +26,8 @@ async def test_add_and_get_booking(
     room_id,
     date_from,
     date_to,
-    status_code,
     booked_rooms,
+    status_code,
     authenticated_ac: AsyncClient,
 ):
     response = await authenticated_ac.post(
