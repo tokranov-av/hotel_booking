@@ -1,11 +1,10 @@
-from datetime import datetime
 import json
+from datetime import datetime
 from typing import Iterable
 
 from app.bookings.dao import BookingDAO
 from app.hotels.dao import HotelDAO
 from app.hotels.rooms.dao import RoomDAO
-
 
 TABLE_MODEL_MAP = {
     'hotels': HotelDAO,

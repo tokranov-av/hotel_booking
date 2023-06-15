@@ -2,7 +2,6 @@ import pytest
 
 from app.users.dao import UserDAO
 
-
 users_data = (
     ('test@test.com', True),
     ('artur@example.com', True),

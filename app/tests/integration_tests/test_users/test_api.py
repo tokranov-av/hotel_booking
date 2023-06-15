@@ -3,7 +3,6 @@ from httpx import AsyncClient
 
 from app.users.router import router_auth
 
-
 register_user_data = (
     ('kot@pes.com', 'kotopes', 201),
     ('kot@pes.com', 'kot0pes', 409),

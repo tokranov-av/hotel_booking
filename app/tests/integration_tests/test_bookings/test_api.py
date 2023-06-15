@@ -3,7 +3,6 @@ from httpx import AsyncClient
 
 from app.bookings.router import router
 
-
 booking_data = (
     (4, '2030-05-01', '2030-05-15', 3, 201),
     (4, '2030-05-02', '2030-05-16', 4, 201),
