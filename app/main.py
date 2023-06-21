@@ -1,9 +1,12 @@
+import time
 from contextlib import asynccontextmanager
+from urllib.request import Request
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+import sentry_sdk
 from redis import asyncio as aioredis
 from sqladmin import Admin
 from starlette.middleware.cors import CORSMiddleware
@@ -16,6 +19,7 @@ from app.database import engine
 from app.hotels.router import router as router_hotels
 from app.images.router import router as router_images
 from app.importer.router import router as router_import
+from app.logger import logger
 from app.pages.router import router as router_pages
 from app.users.router import router_auth, router_users
 
@@ -43,6 +47,14 @@ app = FastAPI(
     title='Бронирование отелей',
     lifespan=lifespan
 )
+
+
+sentry_sdk.init(
+    dsn=('https://98a9ac5895fc4aaeb7d0b0409d2a5c78@o1078497.ingest.sentry.io/'
+         '4505398926573568'),
+    traces_sample_rate=1.0,
+)
+
 app.mount('/static', StaticFiles(directory='app/static'), 'static')
 
 # Включение основных роутеров
@@ -80,3 +92,19 @@ admin.add_view(UsersAdmin)
 admin.add_view(HotelsAdmin)
 admin.add_view(RoomsAdmin)
 admin.add_view(BookingsAdmin)
+
+
+@app.middleware('http')
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    logger.info(
+        'Время обработки запроса',
+        extra={'process_time': round(process_time, 5)}
+    )
+    response.headers['X-Process-Time'] = str(process_time)
+    return response
+
+
+
