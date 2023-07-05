@@ -1,30 +1,62 @@
 version: '3.8'
+
 services:
   redis:
-    container_name: hotels_redis
-    image: redis
+    container_name: booking_redis
+    image: redis:7
     ports:
       - '6379:6379'
   db:
-    image: postgres:14.5
-    container_name: hotels_db
+    image: postgres:15
+    container_name: booking_db
     env_file:
-      - .env.docker
+      - .env.prod
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
-
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin_hotels
+    container_name: booking_pgadmin
     env_file:
-      - .env.docker
+      - .env.prod
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
       - '5050:80'
-
+  booking:
+    build:
+      context: .
+    container_name: booking_app
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+      - redis
+    command: ['/booking/docker/app.sh']
+    ports:
+      - '8000:8000'
+  celery:
+    build:
+      context: .
+    container_name: booking_celery
+    command: ['/booking/docker/celery.sh', 'celery']
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
 volumes:
   pg_data:
   pgadmin_data:
+
+#  flower:
+#    build:
+#      context: .
+#    container_name: booking_flower
+#    command: ['/booking/docker/celery.sh', 'flower']
+#    env_file:
+#      - .env.prod
+#    depends_on:
+#      - redis
+
+

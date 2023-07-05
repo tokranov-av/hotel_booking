@@ -21,7 +21,7 @@ router = APIRouter(
 )
 async def import_data_to_table(
     file: UploadFile,
-    table_name: Literal["hotels", "rooms", "bookings"],
+    table_name: Literal['hotels', 'rooms', 'bookings'],
 ):
     ModelDAO = TABLE_MODEL_MAP[table_name]
     # Внутри переменной file хранятся атрибуты:
