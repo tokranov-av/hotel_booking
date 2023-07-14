@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 from pydantic import BaseModel
@@ -15,7 +15,7 @@ class SBooking(BaseModel):
     total_days: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SBookingInfo(SBooking):
@@ -25,10 +25,10 @@ class SBookingInfo(SBooking):
     services: list[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SNewBooking(BaseModel):
     room_id: int
-    date_from: date
-    date_to: date
+    date_from: date = date.today()
+    date_to: date = date.today() + timedelta(days=14)

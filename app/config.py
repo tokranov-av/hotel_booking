@@ -1,6 +1,7 @@
+import os
 from typing import Literal
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -45,8 +46,12 @@ class Settings(BaseSettings):
         )
         return f'postgresql+asyncpg://{user}@{database}'
 
-    class Config:
-        env_file = '.env'
+    if os.getenv('MODE', 'DEV') in ('TEST', 'DEV'):
+        model_config = SettingsConfigDict(env_file='.env.dev', extra='allow')
+    else:
+        model_config = SettingsConfigDict(env_file='.env.prod', extra='allow')
+
+    print(f"Режим работы: {os.getenv('MODE', 'DEV')}")
 
 
 settings = Settings()
