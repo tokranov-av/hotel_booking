@@ -11,6 +11,8 @@ services:
       - '443:443'
     links:
       - booking
+      - flower
+      - pgadmin
     depends_on:
       - booking
       - pgadmin
