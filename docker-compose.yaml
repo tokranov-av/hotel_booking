@@ -1,11 +1,26 @@
 version: '3.8'
 
 services:
+  nginx:
+    container_name: booking_nginx
+    build:
+      context: .
+      dockerfile: 'Dockerfile.nginx'
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - booking
+    depends_on:
+      - booking
+      - pgadmin
+      - flower
+
   redis:
     container_name: booking_redis
     image: redis:7
-    ports:
-      - '6379:6379'
+#    ports:
+#      - '6379:6379'
 
   db:
     image: postgres:15
@@ -14,8 +29,8 @@ services:
       - .env.prod
     volumes:
       - pg_data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
+#    ports:
+#      - '5432:5432'
 
   pgadmin:
     image: dpage/pgadmin4
@@ -24,8 +39,10 @@ services:
       - .env.prod
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    ports:
-      - '5050:80'
+    depends_on:
+      - db
+  #    ports:
+#      - '5050:80'
 
   booking:
     build:
@@ -36,51 +53,56 @@ services:
     depends_on:
       - db
       - redis
-    command: ['/booking/docker/app.sh']
-    ports:
-      - '8000:8000'
+    command: sh -c 'alembic upgrade head && gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000'
+#    command: ['/booking/docker/app.sh']
+#    ports:
+#      - '8000:8000'
 
   celery:
     build:
       context: .
     container_name: booking_celery
-    command: ['/booking/docker/celery.sh', 'celery']
+    command: sh -c 'celery --app=app.tasks.celery:celery_app worker -l INFO'
+#    command: ['/booking/docker/celery.sh', 'celery']
     env_file:
       - .env.prod
     depends_on:
       - redis
 
-  prometheus:
-   image: prom/prometheus:v2.43.0
-   container_name: prometheus
-   volumes:
-     - ./prometheus.yml:/etc/prometheus/prometheus.yml
-     - prometheus_data:/prometheus
-   restart: unless-stopped
-   ports:
-     - '9090:9090'
-
-  grafana:
-    image: grafana/grafana:9.4.7
-    container_name: grafana
-    volumes:
-      - grafana_data:/var/lib/grafana
-    restart: unless-stopped
-    ports:
-     - '3000:3000'
-
-#  flower:
-#    build:
-#      context: .
-#    container_name: booking_flower
+  flower:
+    build:
+      context: .
+    container_name: booking_flower
+    # При запуске через nginx необходимо запускать команду ниже для корректной работы js и css
+    command: sh -c 'celery --app=app.tasks.celery:celery_app flower --url_prefix=/flower'
 #    command: ['/booking/docker/celery.sh', 'flower']
-#    env_file:
-#      - .env.prod
-#    depends_on:
-#      - redis
+#    command: sh -c 'celery --app=app.tasks.celery:celery flower'
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
+
+#  prometheus:
+#   image: prom/prometheus:v2.43.0
+#   container_name: prometheus
+#   volumes:
+#     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#     - prometheus_data:/prometheus
+#   restart: unless-stopped
+#   ports:
+#     - '9090:9090'
+
+#  grafana:
+#    image: grafana/grafana:9.4.7
+#    container_name: grafana
+#    volumes:
+#      - grafana_data:/var/lib/grafana
+#    restart: unless-stopped
+#    ports:
+#     - '3000:3000'
 
 volumes:
   pg_data:
   pgadmin_data:
-  grafana_data:
-  prometheus_data:
+#  grafana_data:
+#  prometheus_data:
